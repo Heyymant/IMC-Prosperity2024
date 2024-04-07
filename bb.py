@@ -18,6 +18,9 @@ class Trader:
 
         return upper_band, lower_band
 
+    def calculate_mean(self, prices: List[float]) -> float:
+        return np.mean(prices)
+
     def run(self, state: TradingState):
         result = {}
 
@@ -26,11 +29,33 @@ class Trader:
             orders: List[Order] = []
 
             if product == "AMETHYSTS":
-                # Buy and hold AMETHYSTS
-                if state.position.get("AMETHYSTS", 0) < 20:
-                    orders.append(
-                        Order("AMETHYSTS", 10, 20 - state.position.get("AMETHYSTS", 0))
-                    )
+                # Calculate mean of past prices for AMETHYSTS
+                prices = list(order_depth.sell_orders.keys())
+                mean_price = self.calculate_mean(prices)
+
+                if len(order_depth.sell_orders) != 0:
+                    best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
+
+                    if best_ask > mean_price:
+                        # Sell when price goes above the mean
+                        if state.position.get("AMETHYSTS", 0) > 0:
+                            orders.append(
+                                Order(
+                                    "AMETHYSTS",
+                                    best_ask,
+                                    -state.position.get("AMETHYSTS", 0),
+                                )
+                            )
+                    elif best_ask < mean_price:
+                        # Buy when price goes below the mean
+                        if state.position.get("AMETHYSTS", 0) < 20:
+                            orders.append(
+                                Order(
+                                    "AMETHYSTS",
+                                    best_ask,
+                                    20 - state.position.get("AMETHYSTS", 0),
+                                )
+                            )
 
             elif product == "STARFRUIT":
                 # Bollinger Bands strategy for STARFRUIT
