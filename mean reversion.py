@@ -32,33 +32,33 @@ class Trader:
                     prices, window_size=5
                 )  # Adjust window size as needed
 
-                if len(order_depth.sell_orders) != 0:
-                    best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
-                    if best_ask < sma:
-                        # Buy if price is below SMA and we're not already at maximum position
-                        if state.position.get("STARFRUIT", 0) < 20:
-                            orders.append(
-                                Order(
-                                    "STARFRUIT",
-                                    best_ask,
-                                    20 - state.position.get("STARFRUIT", 0),
-                                )
+            if len(order_depth.sell_orders) != 0:
+                best_ask, best_ask_amount = list(order_depth.sell_orders.items())[0]
+                if best_ask < sma:
+                    # Buy if price is below SMA and we're not already at maximum position
+                    if state.position.get("STARFRUIT", 0) < 20:
+                        orders.append(
+                            Order(
+                                "STARFRUIT",
+                                best_ask,
+                                20 - state.position.get("STARFRUIT", 0),
                             )
+                        )
 
-                if len(order_depth.buy_orders) != 0:
-                    best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
-                    if best_bid > sma:
-                        # Sell if price is above SMA and we have a positive position
-                        if state.position.get("STARFRUIT", 0) > 0:
-                            # pnl = (best_bid - best_ask) * best_ask_amount  # Compute PNL
-                            # total_pnl += pnl
-                            orders.append(
-                                Order(
-                                    "STARFRUIT",
-                                    best_bid,
-                                    -state.position.get("STARFRUIT", 0),
-                                )
+            if len(order_depth.buy_orders) != 0:
+                best_bid, best_bid_amount = list(order_depth.buy_orders.items())[0]
+                if best_bid > sma:
+                    # Sell if price is above SMA and we have a positive position
+                    if state.position.get("STARFRUIT", 0) > 0:
+                        # pnl = (best_bid - best_ask) * best_ask_amount  # Compute PNL
+                        # total_pnl += pnl
+                        orders.append(
+                            Order(
+                                "STARFRUIT",
+                                best_bid,
+                                -state.position.get("STARFRUIT", 0),
                             )
+                        )
 
             result[product] = orders
 
